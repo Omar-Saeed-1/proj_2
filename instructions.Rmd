@@ -1,0 +1,121 @@
+---
+title: "instructions"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Analysis of weather data
+
+This project involves exploring the U.S. National Oceanic and Atmospheric Administration’s (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage
+
+### First clean the environment and setup the working directory:
+
+```{r , echo=TRUE}
+getwd()
+data<- read.csv("C:/Users/saeed/Desktop/hti/programnig/R/ass.8/repdata_data_StormData.csv")
+```
+
+### Loading the used libraies:
+
+```{r, echo=TRUE}
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(ggplot2)
+```
+
+### Finding the heads of the data:
+
+```{r, echo=TRUE}
+head(data)
+```
+
+### Finding the summary of the data:
+
+```{r , echo=TRUE}
+summary(data)
+```
+
+### Finding the structure of the data:
+
+```{r, echo=TRUE}
+str(data)
+```
+
+### Calculate the fatalities and injuries seperately:
+
+```{r, echo=TRUE}
+#the Fatalities
+totalFatalities <- aggregate(data$FATALITIES, by = list(data$EVTYPE), "sum")
+names(totalFatalities) <- c("Event", "Fatalities")
+totalFatalitiesSorted <- totalFatalities[order(-totalFatalities$Fatalities), ][1:20, ]
+totalFatalitiesSorted
+```
+
+
+```{r, echo=TRUE}
+#The injuries
+totalInjuries <- aggregate(data$INJURIES, by = list(data$EVTYPE), "sum")
+names(totalInjuries) <- c("Event", "Injuries")
+totalInjuriesSorted <- totalInjuries[order(-totalInjuries$Injuries), ][1:20, ]
+totalInjuriesSorted
+```
+
+### Compareing between fatalities and injuries by ploting:
+
+```{r,echo=TRUE}
+par(mfrow = c(1, 2), mar = c(10, 4, 2, 2), las = 3, cex = 0.7, cex.main = 1.4, cex.lab = 1.2)
+barplot(totalFatalitiesSorted$Fatalities, names.arg = totalFatalitiesSorted$Event, col = 'white',main = 'Top 20 Weather Events for Fatalities', ylab = 'Number of Fatalities')
+barplot(totalInjuriesSorted$Injuries, names.arg = totalInjuriesSorted$Event, col = 'gray',main = 'Top 20 Weather Events for Injuries', ylab = 'Number of Injuries')
+```
+
+### Calculate the cost of property and crop damages:
+
+```{r, echo=TRUE}
+# property
+totProperty <- aggregate(data$PROPDMG, by = list(data$EVTYPE), "sum")
+names(totProperty) <- c("Event", "Property")
+totPropertySorted <- totProperty[order(-totProperty$Property), ][1:20, ]
+totPropertySorted
+```
+
+
+```{r,echo=TRUE}
+# crop damages
+totCrop <- aggregate(data$CROPDMG, by = list(data$EVTYPE), "sum")
+names(totCrop) <- c("Event", "Crop")
+totCropSorted <- totCrop[order(-totCrop$Crop), ][1:20, ]
+totCropSorted
+```
+
+### Compareing between property and crop damages by ploting:
+
+```{r, echo=TRUE}
+par(mfrow = c(1, 2), mar = c(10, 4, 2, 2), las = 3, cex = 0.7, cex.main = 1.4, cex.lab = 1.2)
+barplot(totPropertySorted$Property, names.arg = totPropertySorted$Event, col = 'white',pch=19
+,main = 'Top 20 Weather Events for Property Damage ', ylab = 'Amount of Property Damage', ylim = c(0, 3500000))
+barplot(totCropSorted$Crop, names.arg = totCropSorted$Event, col = 'gray', pch=19,
+main = 'Top 20 Weather Events for Crop Damage', ylab = 'Amount of  Crop Damage',ylim = c(0, 3500000))
+```
+
+### The total damage by adding costs:
+
+```{r, echo=TRUE}
+totTotalCost <- aggregate(data$CROPDMG+data$PROPDMG, by = list(data$EVTYPE), "sum")
+names(totTotalCost) <- c("Event", "TotalCost")
+totTotalCostSorted <- totTotalCost[order(-totTotalCost$TotalCost), ][1:20, ]
+totTotalCostSorted
+```
+
+### plot of total damage after adding costs:
+
+```{r, echo=TRUE}
+par(mfrow = c(1,1), mar = c(10, 4, 2, 2), las = 3, cex = 0.7, cex.main = 1.4, cex.lab = 1.2)
+barplot(totTotalCostSorted$TotalCost, names.arg = totTotalCostSorted$Event, col = 'red3',main = 'Top 20 Weather Events for total Damage ', ylab = 'Amount of total Damage', ylim = c(0, 3500000))
+```
+
+
+## The tornadoes cause most total damage.
